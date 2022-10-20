@@ -1,3 +1,4 @@
+![alt text](https://ineuron.ai/images/ineuron-logo.png)
 # Sensor-Fault-Detection
 
 ### Problem Statement
