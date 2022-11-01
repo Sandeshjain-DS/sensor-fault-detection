@@ -14,8 +14,10 @@ echo "0bfd792196ce0ec6f1c65d2a9ad00215b2926ef2c416b8d97615265194477117  actions-
 
 tar xzf ./actions-runner-linux-x64-2.298.2.tar.gz
 
-./config.sh --url https://github.com/Machine-Learning-01/sensor-fault-detection --token $1 --runnergroup Default --name self-hosted --labels ineuron --work _work --replace true 
+./config.sh --url https://github.com/Machine-Learning-01/sensor-fault-detection --token $1 --runnergroup Default --name self-hosted --labels ineuron --work _work --replace [--name self-hosted] 
 
 sudo ./svc.sh install
 
 sudo ./svc.sh start
+
+sudo apt install awscli -y
