@@ -1,10 +1,6 @@
 ![alt text](https://ineuron.ai/images/ineuron-logo.png)
 
-# Infrastructure Setup 
-
-## AWS Cloud Setup 
-
-First we need to have a AWS account with credit card attached to it, else we will not be able to access AWS cloud resources. Once that is that, login to AWS account, with your credentials. Once that is done, near to the services section there is a serach tab, there type IAM and click enter. You will be redirected to IAM console, in the access management, click on users and then click on add user, give the username of your choice, example "sensorproject" and select the AWS access type as programmatic access, then click on next permissions, and click on attach existing policies directly and select "AmazonEC2FullAccess" policy and "AmazonS3FullAccess" policy. Click on next tags, you can skip the creation of tags, and next review, here you shall see that the user with username as "sensorproject" has been created with AmazonEC2FullAccess and AmazonS3FullAccess policy, once the review is done, click on create user. Once that is done, the user will be created with given permissions and neccessary AWS keys are created. Note that these keys have to be kept secret and not shared with anyone, and there is no way to retrive these secrets once lost, so be carefull not to expose or lose these credentials. With that said, download the .csv file which contains the credentials for connecting to AWS via CLI. You can now close and you will redirected to iam console, where you can "sensorproject" user has been created.
+# Automated Deployment for Sensor Fault Detection Project
 
 ## AWS CLI Installation
 
@@ -55,6 +51,42 @@ To check aws cli is working fine or not, execute the following commands
 ```bash
 aws --version
 ```
+
+## Login to AWS Console
+
+First step is to login to the console, you can open aws console in your browser and login with your credentials
+
+![](images/aws_login_page.png)
+
+## Creating IAM role for getting access to AWS resources
+
+Once you are logged into you aws account, you need to create IAM user for getting credentials
+
+![](images/aws_iam_page.png)
+
+On click on IAM, and you will redirected to IAM console, from there click on add users 
+
+![](images/aws_iam_console.png)
+
+![](images/aws_iam_add_users.png)
+
+You need to add user details like user name with programmatic access. Once that is done, click on next permissions
+
+![](images/aws_iam_user_settings.png)
+
+With that done, we need attach policies to the user to grant accesss to AWS resources. Some of the policies are S3 access, EC2 access and ECR access
+
+![](images/aws_iam_add_ec2_and_ecr_full_access.png)
+
+![](images/aws_iam_add_s3_full_access.png)
+
+Once the policies are attached, review the user name and policies attached to the user
+
+![](images/aws_iam_review_user.png)
+
+Once the user name and policies are reviewed, click on download csv, and there are csv file which contains your AWS credentials. Kindly keep this in secret and do not share with anyone
+
+![](images/aws_iam_user_success.png)
 
 ## Configuring AWS credentials to use AWS resources
 
@@ -126,7 +158,39 @@ To check whether the terraform installation is working fine or not. Execute the 
 terraform --version
 ```
 
-## Sensor Infrastructure Setup
+## Setup Github secrets to deploy via Github Actions
+In order to store and use secrets in github workflows, follow the steps in the screenshots. 
+
+In your repository, go to settings and then under security, click on secrets and then actions 
+
+![](images/github_secrets_actoions_page.png)
+
+Once that is done, we can put secrets by clicking on new repository secret button
+
+![](images/github_create_repo_secret.png)
+
+Put use secret name and secret values corresponding to the one in github workflow
+
+Note - This step is applicable for all secrets, and once the secrets are kept there is no way to see what is the value of the secret
+
+AWS_ACCESS_KEY_ID ["AWS_ACCESS_KEY_ID"]
+
+AWS_SECRET_ACCESS_KEY ["AWS_SECRET_ACCESS_KEY"]
+
+AWS_DEFAULT_REGION ["AWS_DEFAULT_REGION"]
+
+MONGO_DB_URL - ["MONGO_DB_URL]
+
+ECR_REPO - ["name of ecr repo created"]
+
+![](images/creating_github_secret.png)
+
+To check whether the secret has been created or not
+
+![](images/github_repo_secrets.png)
+
+
+## Terraform code changes for provisioning infrastructure
 
 Since we are using terraform to setup the infrastructure, we have to create a backend, where terraform can store the state of the infrastructure and other files, We can use AWS S3 buckets, Azure Blob Storage or GCS buckets. 
 
