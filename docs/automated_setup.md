@@ -159,6 +159,7 @@ terraform --version
 ```
 
 ## Setup Github secrets to deploy via Github Actions
+
 In order to store and use secrets in github workflows, follow the steps in the screenshots. 
 
 In your repository, go to settings and then under security, click on secrets and then actions 
@@ -189,6 +190,65 @@ To check whether the secret has been created or not
 
 ![](images/github_repo_secrets.png)
 
+## GitHub Runner Setup
+
+### Note - This steps are same for manual and automated deployments. If you are doing automated deployments, follow from these steps
+
+Once the instance is running, click on the instance id and then click on connect and copy the ssh command. Open any SSH client like Putty, Mobaxterm or powershell terminal and change directory to the place where the pem file is present, and paste the command and then click on enter. Type yes on prompted.
+
+![](images/aws_instance_connect.png)
+
+![](images/aws_instance_ssh_connect.png)
+
+We are using git bash terminal, to make an SSH connection to AWS EC2 instance.
+
+![](images/aws_instance_connect_ssh_git_bash.png)
+
+After that you will be successfully connected to EC2 instance via SSH.
+
+![](images/aws_instance_connect_success.png)
+
+Once the connection is successfully established with EC2 instance, we can setup the github runner for automated deployments via github actions. In order to setup runners, we need to execute the bash scripts present in the scripts/setup_runner.sh
+
+First in order to run the scripts, we need to get the github token for our repo. The github token can be found in runners sections and settings page. Follow the screenshots to get the token
+
+![](images/getting_github_token_part_1.png)
+
+![](images/getting_github_token_part_2.png)
+
+![](images/github_runner_page.png)
+
+![](images/github_runner_pat.png)
+
+Copy the github actions, highlighted the screenshot and store it somewhere safe. Once that is done, we can download the scripts to EC2 machine and execute them with the github token, we previously copied.
+
+Navigate to the scripts folder in the repo and find the setup_runner.sh, click on raw button and copy the url, which is avaiable in the browser
+
+![](images/setup_runner_script_github.png)
+
+![](images/setup_runner_content.png)
+
+Once we get the url of the scripts, go to the git bash terminal where ssh connection has been made. execute the commands. After the script is downloaded, run the downloaded scripts with github token
+
+```bash
+wget https://raw.githubusercontent.com/Machine-Learning-01/sensor-fault-detection/main/scripts/setup_runner.sh
+```
+
+Put your github token, which was previously copied from the runner page
+
+```bash
+bash setup_runner.sh <github-token>
+```
+
+![](images/get_execution_scripts_in_ssh.png)
+
+![](images/run_setup_script_with_token.png)
+
+After successfull execution of the scripts, we can see in github runner page, there will be runner named self-hosted with idle status that means, runner setup was successfully done. 
+
+![](images/runner_status_check.png)
+
+Once runner is successfully setup with github, we can use github workflows to automate CI-CD tasks.
 
 ## Terraform code changes for provisioning infrastructure
 
@@ -240,6 +300,8 @@ On successfull execution of the commands, all the terraform modules present in i
 ```bash
 terraform apply -target=module.<module_name> --auto-approve
 ```
+
+## Destroy the infrastructure
 
 To destroy the infrastructure, execute the following commands
 
