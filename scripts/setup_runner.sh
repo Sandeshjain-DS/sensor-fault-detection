@@ -19,5 +19,3 @@ tar xzf ./actions-runner-linux-x64-2.298.2.tar.gz
 sudo ./svc.sh install
 
 sudo ./svc.sh start
-
-sudo apt install awscli -y
