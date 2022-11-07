@@ -1,6 +1,6 @@
 variable "aws_region" {
   type    = string
-  default = "us-east-1"
+  default = "ap-south-1"
 }
 
 variable "pred_data_bucket_name" {
@@ -10,7 +10,7 @@ variable "pred_data_bucket_name" {
 
 variable "aws_account_id" {
   type    = string
-  default = "347460842118"
+  default = "566373416292"
 }
 
 variable "force_destroy_bucket" {
