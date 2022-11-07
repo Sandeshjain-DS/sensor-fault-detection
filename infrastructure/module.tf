@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket = "sensor-tf-state"
     key    = "tf_state"
-    region = "us-east-1"
+    region = "ap-south-1"
   }
 }
 

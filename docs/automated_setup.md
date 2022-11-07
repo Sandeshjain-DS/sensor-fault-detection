@@ -1,10 +1,6 @@
 ![alt text](https://ineuron.ai/images/ineuron-logo.png)
 
-# Infrastructure Setup 
-
-## AWS Cloud Setup 
-
-First we need to have a AWS account with credit card attached to it, else we will not be able to access AWS cloud resources. Once that is that, login to AWS account, with your credentials. Once that is done, near to the services section there is a serach tab, there type IAM and click enter. You will be redirected to IAM console, in the access management, click on users and then click on add user, give the username of your choice, example "sensorproject" and select the AWS access type as programmatic access, then click on next permissions, and click on attach existing policies directly and select "AmazonEC2FullAccess" policy and "AmazonS3FullAccess" policy. Click on next tags, you can skip the creation of tags, and next review, here you shall see that the user with username as "sensorproject" has been created with AmazonEC2FullAccess and AmazonS3FullAccess policy, once the review is done, click on create user. Once that is done, the user will be created with given permissions and neccessary AWS keys are created. Note that these keys have to be kept secret and not shared with anyone, and there is no way to retrive these secrets once lost, so be carefull not to expose or lose these credentials. With that said, download the .csv file which contains the credentials for connecting to AWS via CLI. You can now close and you will redirected to iam console, where you can "sensorproject" user has been created.
+# Automated Deployment for Sensor Fault Detection Project
 
 ## AWS CLI Installation
 
@@ -55,6 +51,42 @@ To check aws cli is working fine or not, execute the following commands
 ```bash
 aws --version
 ```
+
+## Login to AWS Console
+
+First step is to login to the console, you can open aws console in your browser and login with your credentials
+
+![](images/aws_login_page.png)
+
+## Creating IAM role for getting access to AWS resources
+
+Once you are logged into you aws account, you need to create IAM user for getting credentials
+
+![](images/aws_iam_page.png)
+
+On click on IAM, and you will redirected to IAM console, from there click on add users 
+
+![](images/aws_iam_console.png)
+
+![](images/aws_iam_add_users.png)
+
+You need to add user details like user name with programmatic access. Once that is done, click on next permissions
+
+![](images/aws_iam_user_settings.png)
+
+With that done, we need attach policies to the user to grant accesss to AWS resources. Some of the policies are S3 access, EC2 access and ECR access
+
+![](images/aws_iam_add_ec2_and_ecr_full_access.png)
+
+![](images/aws_iam_add_s3_full_access.png)
+
+Once the policies are attached, review the user name and policies attached to the user
+
+![](images/aws_iam_review_user.png)
+
+Once the user name and policies are reviewed, click on download csv, and there are csv file which contains your AWS credentials. Kindly keep this in secret and do not share with anyone
+
+![](images/aws_iam_user_success.png)
 
 ## Configuring AWS credentials to use AWS resources
 
@@ -126,7 +158,99 @@ To check whether the terraform installation is working fine or not. Execute the 
 terraform --version
 ```
 
-## Sensor Infrastructure Setup
+## Setup Github secrets to deploy via Github Actions
+
+In order to store and use secrets in github workflows, follow the steps in the screenshots. 
+
+In your repository, go to settings and then under security, click on secrets and then actions 
+
+![](images/github_secrets_actoions_page.png)
+
+Once that is done, we can put secrets by clicking on new repository secret button
+
+![](images/github_create_repo_secret.png)
+
+Put use secret name and secret values corresponding to the one in github workflow
+
+Note - This step is applicable for all secrets, and once the secrets are kept there is no way to see what is the value of the secret
+
+AWS_ACCESS_KEY_ID ["AWS_ACCESS_KEY_ID"]
+
+AWS_SECRET_ACCESS_KEY ["AWS_SECRET_ACCESS_KEY"]
+
+AWS_DEFAULT_REGION ["AWS_DEFAULT_REGION"]
+
+MONGO_DB_URL - ["MONGO_DB_URL]
+
+ECR_REPO - ["name of ecr repo created"]
+
+![](images/creating_github_secret.png)
+
+To check whether the secret has been created or not
+
+![](images/github_repo_secrets.png)
+
+## GitHub Runner Setup
+
+### Note - This steps are same for manual and automated deployments. If you are doing automated deployments, follow from these steps
+
+Once the instance is running, click on the instance id and then click on connect and copy the ssh command. Open any SSH client like Putty, Mobaxterm or powershell terminal and change directory to the place where the pem file is present, and paste the command and then click on enter. Type yes on prompted.
+
+![](images/aws_instance_connect.png)
+
+![](images/aws_instance_ssh_connect.png)
+
+We are using git bash terminal, to make an SSH connection to AWS EC2 instance.
+
+![](images/aws_instance_connect_ssh_git_bash.png)
+
+After that you will be successfully connected to EC2 instance via SSH.
+
+![](images/aws_instance_connect_success.png)
+
+Once the connection is successfully established with EC2 instance, we can setup the github runner for automated deployments via github actions. In order to setup runners, we need to execute the bash scripts present in the scripts/setup_runner.sh
+
+First in order to run the scripts, we need to get the github token for our repo. The github token can be found in runners sections and settings page. Follow the screenshots to get the token
+
+![](images/getting_github_token_part_1.png)
+
+![](images/getting_github_token_part_2.png)
+
+![](images/github_runner_page.png)
+
+![](images/github_runner_pat.png)
+
+Copy the github actions, highlighted the screenshot and store it somewhere safe. Once that is done, we can download the scripts to EC2 machine and execute them with the github token, we previously copied.
+
+Navigate to the scripts folder in the repo and find the setup_runner.sh, click on raw button and copy the url, which is avaiable in the browser
+
+![](images/setup_runner_script_github.png)
+
+![](images/setup_runner_content.png)
+
+Once we get the url of the scripts, go to the git bash terminal where ssh connection has been made. execute the commands. After the script is downloaded, run the downloaded scripts with github token
+
+```bash
+wget https://raw.githubusercontent.com/Machine-Learning-01/sensor-fault-detection/main/scripts/setup_runner.sh
+```
+
+Put your github token, which was previously copied from the runner page
+
+```bash
+bash setup_runner.sh <github-token>
+```
+
+![](images/get_execution_scripts_in_ssh.png)
+
+![](images/run_setup_script_with_token.png)
+
+After successfull execution of the scripts, we can see in github runner page, there will be runner named self-hosted with idle status that means, runner setup was successfully done. 
+
+![](images/runner_status_check.png)
+
+Once runner is successfully setup with github, we can use github workflows to automate CI-CD tasks.
+
+## Terraform code changes for provisioning infrastructure
 
 Since we are using terraform to setup the infrastructure, we have to create a backend, where terraform can store the state of the infrastructure and other files, We can use AWS S3 buckets, Azure Blob Storage or GCS buckets. 
 
@@ -176,6 +300,8 @@ On successfull execution of the commands, all the terraform modules present in i
 ```bash
 terraform apply -target=module.<module_name> --auto-approve
 ```
+
+## Destroy the infrastructure
 
 To destroy the infrastructure, execute the following commands
 
